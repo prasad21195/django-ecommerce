@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - ShopHub{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Hero Section -->
+    <div class="hero-section mb-5">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold mb-3">Welcome to ShopHub</h1>
+                <p class="lead mb-4">Discover amazing products at unbeatable prices</p>
+                <div class="hero-buttons">
+                    <a href="#products" class="btn btn-light btn-lg px-4">
+                        <i class="fas fa-arrow-down"></i> Shop Now
+                    </a>
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg px-4">
+                            <i class="fas fa-user-plus"></i> Join Us
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Products -->
+    {% if featured_products %}
+        <div class="container mb-5">
+            <h2 class="section-title mb-4">
+                <i class="fas fa-star text-warning"></i> Featured Products
+            </h2>
+            <div class="row">
+                {% for product in featured_products %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        {% include 'includes/product_card.html' with product=product %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Search & Filter Section -->
+    <div class="container mb-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <form method="get" class="d-flex gap-2">
+                            <input 
+                                type="text" 
+                                name="q" 
+                                class="form-control" 
+                                placeholder="Search products..." 
+                                value="{{ query }}"
+                            >
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="categoryFilter">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}" {% if category.id|stringformat:"s" == category_id %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="sortFilter">
+                            <option value="">Sort By</option>
+                            <option value="-created_at" {% if sort == '-created_at' %}selected{% endif %}>Newest</option>
+                            <option value="name" {% if sort == 'name' %}selected{% endif %}>Name (A-Z)</option>
+                            <option value="price" {% if sort == 'price' %}selected{% endif %}>Price (Low-High)</option>
+                            <option value="-price" {% if sort == '-price' %}selected{% endif %}>Price (High-Low)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="container" id="products">
+        {% if products %}
+            <h2 class="section-title mb-4">
+                <i class="fas fa-shopping-bag"></i> Products
+                {% if query %}
+                    <span class="small text-muted ms-2">Search: "{{ query }}"</span>
+                {% endif %}
+            </h2>
+            
+            <div class="row mb-4">
+                {% for product in products %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        {% include 'includes/product_card.html' with product=product %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if products.has_other_pages %}
+                <nav aria-label="Page navigation" class="mb-4">
+                    <ul class="pagination justify-content-center">
+                        {% if products.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ products.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in products.paginator.page_range %}
+                            {% if products.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if products.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ products.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ products.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h4>No Products Found</h4>
+                <p class="text-muted">Try adjusting your search or filter criteria</p>
+                <a href="{% url 'home' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Shop
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.getElementById('categoryFilter').addEventListener('change', function() {
+        const categoryId = this.value;
+        const url = new URL(window.location);
+        if (categoryId) {
+            url.searchParams.set('category', categoryId);
+        } else {
+            url.searchParams.delete('category');
+        }
+        window.location = url.toString();
+    });
+
+    document.getElementById('sortFilter').addEventListener('change', function() {
+        const sort = this.value;
+        const url = new URL(window.location);
+        if (sort) {
+            url.searchParams.set('sort', sort);
+        } else {
+            url.searchParams.delete('sort');
+        }
+        window.location = url.toString();
+    });
+</script>
+{% endblock %}

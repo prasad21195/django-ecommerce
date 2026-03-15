@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Confirmation - ShopHub{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Success Message -->
+    <div class="row mb-5">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="alert alert-success text-center" role="alert">
+                <i class="fas fa-check-circle fa-3x mb-3"></i>
+                <h2>Order Placed Successfully!</h2>
+                <p class="lead">Thank you for your purchase</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details -->
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Order Info Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Order Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Order Number</h6>
+                            <p class="h5 text-primary">{{ order.order_number }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Order Date</h6>
+                            <p class="h5">{{ order.created_at|date:"M d, Y H:i" }}</p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Items -->
+                    <h6 class="mb-3">Items Ordered</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order_items %}
+                                    <tr>
+                                        <td>{{ item.product.name }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>${{ item.price }}</td>
+                                        <td><strong>${{ item.get_total_price }}</strong></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr>
+
+                    <!-- Total -->
+                    <div class="row">
+                        <div class="col-md-6 offset-md-6">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span>${{ order.total_amount }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Shipping:</span>
+                                <span class="text-success">Free</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <strong class="h5">Total:</strong>
+                                <strong class="h5 text-primary">${{ order.total_amount }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipping Info -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Shipping Address</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Recipient</h6>
+                            <p>{{ order.full_name }}</p>
+                            <p class="text-muted small">
+                                {{ order.address }}<br>
+                                {{ order.city }}, {{ order.postal_code }}<br>
+                                {{ order.email }}<br>
+                                {{ order.phone }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Order Status</h6>
+                            <p>
+                                <span class="badge bg-info">{{ order.get_status_display }}</span>
+                            </p>
+                            {% if order.tracking_number %}
+                                <h6 class="text-muted mb-2">Tracking Number</h6>
+                                <p class="text-monospace">{{ order.tracking_number }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Next Steps -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">What's Next?</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="fas fa-check text-success"></i>
+                            <span class="ms-2">Order confirmed</span>
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-clock text-warning"></i>
+                            <span class="ms-2">We'll process your order soon</span>
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-truck text-info"></i>
+                            <span class="ms-2">Your item will be shipped</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-box text-success"></i>
+                            <span class="ms-2">You'll receive tracking info via email</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'order_history' %}" class="btn btn-primary">
+                            <i class="fas fa-history"></i> View All Orders
+                        </a>
+                        <a href="{% url 'home' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-shopping-bag"></i> Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Message -->
+    <div class="row mt-5">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="alert alert-info">
+                <i class="fas fa-envelope"></i>
+                <strong>Confirmation Email:</strong> A confirmation email has been sent to <strong>{{ order.email }}</strong>. 
+                Please check your email for order details and tracking information.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

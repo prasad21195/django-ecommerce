@@ -1,0 +1,94 @@
+<!-- Product Card Component -->
+<div class="card product-card h-100 shadow-sm hover-effect">
+    <!-- Product Image -->
+    <div class="product-image-container">
+        {% if product.image %}
+            <img src="{{ product.image.url }}" class="card-img-top product-image" alt="{{ product.name }}">
+        {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
+                <i class="fas fa-image fa-3x text-muted"></i>
+            </div>
+        {% endif %}
+        
+        <!-- Badges -->
+        <div class="product-badge">
+            {% if product.get_discount_percentage > 0 %}
+                <div class="badge-custom badge-primary">
+                    -{{ product.get_discount_percentage }}%
+                </div>
+            {% endif %}
+            
+            {% if product.is_in_stock %}
+                <div class="badge-custom badge-success">In Stock</div>
+            {% else %}
+                <div class="badge-custom badge-danger">Out of Stock</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body d-flex flex-column">
+        <!-- Category -->
+        <div class="product-category">{{ product.category.name }}</div>
+        
+        <!-- Title -->
+        <a href="{% url 'product_detail' product.slug %}" class="product-title">
+            {{ product.name }}
+        </a>
+        
+        <!-- Rating -->
+        {% if product.get_review_count > 0 %}
+            <div class="product-rating">
+                <div class="rating-stars">
+                    {% for i in "12345" %}
+                        {% if i|add:"0" <= product.get_average_rating %}
+                            <span>⭐</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <span class="rating-count">({{ product.get_review_count }})</span>
+            </div>
+        {% else %}
+            <div class="product-rating">
+                <small class="text-muted">No reviews yet</small>
+            </div>
+        {% endif %}
+
+        <!-- Price -->
+        <div class="product-price mt-2">
+            {% if product.get_discount_percentage > 0 %}
+                <span class="price-original">${{ product.price }}</span>
+            {% endif %}
+            <span class="price-current">${{ product.get_display_price }}</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="product-actions mt-auto">
+            <a href="{% url 'product_detail' product.slug %}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-eye"></i> View
+            </a>
+            
+            {% if user.is_authenticated %}
+                {% if user.wishlist.items.all|length > 0 and in_wishlist %}
+                    <form method="post" action="{% url 'remove_from_wishlist' %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-wishlist btn-sm w-100">
+                            <i class="fas fa-heart"></i> Saved
+                        </button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{% url 'add_to_wishlist' product.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-wishlist btn-sm w-100">
+                            <i class="fas fa-heart"></i> Save
+                        </button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-wishlist btn-sm w-100">
+                    <i class="fas fa-heart"></i> Save
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>

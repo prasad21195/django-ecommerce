@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - ShopHub{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <i class="fas fa-sign-in-alt fa-3x text-primary mb-3"></i>
+                        <h2>Login to ShopHub</h2>
+                        <p class="text-muted">Access your account</p>
+                    </div>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Username -->
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Username</label>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-lg" 
+                                id="id_username"
+                                name="username"
+                                placeholder="Enter your username"
+                                required
+                            >
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-4">
+                            <label for="id_password" class="form-label">Password</label>
+                            <input 
+                                type="password" 
+                                class="form-control form-control-lg" 
+                                id="id_password"
+                                name="password"
+                                placeholder="Enter your password"
+                                required
+                            >
+                        </div>
+
+                        <!-- Remember Me -->
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">
+                                Remember me
+                            </label>
+                        </div>
+
+                        <!-- Login Button -->
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </button>
+                        </div>
+
+                        <!-- Errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </form>
+
+                    <hr class="my-4">
+
+                    <!-- Register Link -->
+                    <p class="text-center text-muted">
+                        Don't have an account?
+                        <a href="{% url 'register' %}" class="text-decoration-none fw-bold text-primary">Register here</a>
+                    </p>
+
+                    <!-- Features -->
+                    <div class="mt-4">
+                        <p class="small text-muted text-center mb-3">Benefits of creating an account:</p>
+                        <ul class="list-unstyled small">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i> 
+                                <span class="ms-2">Faster checkout</span>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i> 
+                                <span class="ms-2">Track your orders</span>
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success"></i> 
+                                <span class="ms-2">Save your wishlist</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

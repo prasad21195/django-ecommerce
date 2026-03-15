@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} - ShopHub{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item active">{{ category.name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Category Header -->
+    <div class="category-header mb-5">
+        {% if category.image %}
+            <div class="position-relative mb-4" style="height: 300px; overflow: hidden; border-radius: 10px;">
+                <img src="{{ category.image.url }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ category.name }}">
+            </div>
+        {% endif %}
+        <h1 class="display-4 mb-3">{{ category.name }}</h1>
+        {% if category.description %}
+            <p class="lead text-muted">{{ category.description }}</p>
+        {% endif %}
+        <div class="alert alert-info d-inline-block">
+            <i class="fas fa-info-circle"></i> 
+            Found <strong>{{ products.paginator.count }}</strong> product(s) in this category
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <form method="get" class="d-flex gap-2">
+                        <input 
+                            type="text" 
+                            name="q" 
+                            class="form-control" 
+                            placeholder="Search in this category..." 
+                            value="{{ query }}"
+                        >
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </form>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="sortFilter">
+                        <option value="">Sort By</option>
+                        <option value="-created_at" {% if sort == '-created_at' %}selected{% endif %}>Newest</option>
+                        <option value="name" {% if sort == 'name' %}selected{% endif %}>Name (A-Z)</option>
+                        <option value="price" {% if sort == 'price' %}selected{% endif %}>Price (Low-High)</option>
+                        <option value="-price" {% if sort == '-price' %}selected{% endif %}>Price (High-Low)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    {% if products %}
+        <div class="row mb-5">
+            {% for product in products %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    {% include 'includes/product_card.html' with product=product %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if products.has_other_pages %}
+            <nav aria-label="Page navigation" class="mb-4">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in products.paginator.page_range %}
+                        {% if products.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if products.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">Last</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+            <h4>No Products Found</h4>
+            <p class="text-muted">This category doesn't have any products yet</p>
+            <a href="{% url 'home' %}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Shop
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    document.getElementById('sortFilter').addEventListener('change', function() {
+        const sort = this.value;
+        const url = new URL(window.location);
+        if (sort) {
+            url.searchParams.set('sort', sort);
+        } else {
+            url.searchParams.delete('sort');
+        }
+        window.location = url.toString();
+    });
+</script>
+{% endblock %}
